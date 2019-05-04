@@ -157,7 +157,8 @@ NlmToLensConverter.Prototype = function() {
     }
 
     this.sanitizeXML(xmlDoc);
-
+    // Solve license-p without ext-link when licence have xlink:href property
+    this.addLicensePsLinks(xmlDoc);
     // Creating the output Document via factore, so that it is possible to
     // create specialized NLMImporter later which would want to instantiate
     // a specialized Document type
@@ -181,7 +182,41 @@ NlmToLensConverter.Prototype = function() {
   this.sanitizeXML = function(xmlDoc) {
     /* jshint unused:false */
   };
-
+  /**
+   * Find all <licence-p> than his father have `xlink:href` attribute and
+   * it self have no <ext-link> childs and convert all `<licence-p>` content
+   * in a `<ext-link>` with `xlink:href` equal to its parent.
+   * # Example:
+   * <license xlink:href="http://creativecommons.org/licenses/by/3.0/">
+   *  <license-p>
+   *      This article is distributed under the terms of the Creative Commons Attribution License, which permits
+   *      unrestricted use and redistribution provided that the original author and source are credited.
+   *    </license-p>
+   * </license>
+   * Is converted to:
+   * <license xlink:href="http://creativecommons.org/licenses/by/3.0/">
+   *  <license-p>
+   *      <ext-link xlink:href="http://creativecommons.org/licenses/by/3.0/" ext-link-type="uri">
+   *        This article is distributed under the terms of the Creative Commons Attribution License, which permits
+   *        unrestricted use and redistribution provided that the original author and source are credited.
+   *      </ext-link>
+   *    </license-p>
+   * </license>
+   * @param xmlDoc DomDocument
+   */
+  this.addLicensePsLinks = function (xmlDoc) {
+    const licensePs = xmlDoc.getElementsByTagName('license-p');
+    for (var i = 0; i < licensePs.length ;i++) {
+      if(licensePs[i].getElementsByTagName('ext-link').length === 0 && licensePs[i].parentNode.getAttribute('xlink:href')) {
+        const extLink = xmlDoc.createElement('ext-link');
+        extLink.setAttribute('ext-link-type', 'uri');
+        extLink.setAttribute('xlink:href', licensePs[i].parentNode.getAttribute('xlink:href'));
+        extLink.innerHTML = licensePs[i].innerHTML;
+        licensePs[i].innerHTML = '';
+        licensePs[i].append(extLink);
+      }
+    }
+  };
   this.createState = function(xmlDoc, doc) {
     return new NlmToLensConverter.State(this, xmlDoc, doc);
   };

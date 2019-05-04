@@ -308,10 +308,10 @@ panels.splice(-1, 0, altmetricsPanel);
 
 ### Bundling
 
-Lens uses gulp and browserify for bundling. Just run the `gulp` command.
+Lens uses gulp and browserify for bundling. Just run the `npm run build` command.
 
 ```bash
-$ gulp
+$ npm run build
 ```
 
 You can find your bundle in the `dist` folder.

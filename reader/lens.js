@@ -139,4 +139,3 @@ Lens.ResourcePanelViewFactory = ResourcePanelViewFactory;
 Lens.Workflow = Workflow;
 
 module.exports = Lens;
-window.Lens = Lens;

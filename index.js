@@ -1,3 +1,6 @@
+var reader = require('./reader');
 module.exports = {
-  Reader: require('./reader')
+  Reader: reader
 }
+window.Lens = reader;
+
